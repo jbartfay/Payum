@@ -6,6 +6,7 @@ use Payum\Core\Reply\HttpRedirect;
 use Payum\Core\Exception\RequestNotSupportedException;
 use Payum\Core\Exception\LogicException;
 use Payum\Paypal\ExpressCheckout\Nvp\Request\Api\AuthorizeToken;
+use Payum\Paypal\ExpressCheckout\Nvp\Api;
 
 class AuthorizeTokenAction extends BaseApiAwareAction
 {
@@ -26,6 +27,14 @@ class AuthorizeTokenAction extends BaseApiAwareAction
         }
 
         if (false == $model['PAYERID'] || $request->isForced()) {
+            
+            // Set default 'useraction' to commit payment on processor side.
+            if (! array_key_exists('AUTHORIZE_TOKEN_USERACTION', $model) 
+                || ! strlen($model['AUTHORIZE_TOKEN_USERACTION'])) {
+                    
+                $model['AUTHORIZE_TOKEN_USERACTION'] = Api::USERACTION_COMMIT;
+            }
+            
             throw new HttpRedirect(
                 $this->api->getAuthorizeTokenUrl($model['TOKEN'], array(
                     'useraction' => $model['AUTHORIZE_TOKEN_USERACTION'],
